@@ -1,0 +1,15 @@
+spring:
+    application
+        name: ImageProject
+    datasource:
+        url: jdbc:mysql://localhost:3376/moovsmartTest?createDatabaseIfNotExist=true&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
+        username: root
+        password: test1234
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.MySQL8Dialect
+        show-sql: on
+
