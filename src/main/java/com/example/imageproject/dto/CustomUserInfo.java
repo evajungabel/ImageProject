@@ -1,6 +1,6 @@
-package hu.progmasters.moovsmart.dto;
+package com.example.imageproject.dto;
 
-import hu.progmasters.moovsmart.config.CustomUserRole;
+import com.example.imageproject.config.CustomUserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,9 +18,7 @@ public class CustomUserInfo {
     private String username;
     private String email;
     private String phoneNumber;
-
     private Boolean enable;
-
     private Boolean hasNewsletter;
     private List<CustomUserRole> customUserRoles;
 

@@ -1,4 +1,4 @@
-package hu.progmasters.moovsmart.dto;
+package com.example.imageproject.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,9 +36,6 @@ public class CustomUserFormAdmin {
     @Email
     @Pattern(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
     private String email;
-
-    @NotNull(message = "Being an agent cannot be empty!")
-    private Boolean isAgent;
 
     @NotNull(message = "Choosing an option for sending newsletter cannot be empty!")
     private Boolean hasNewsletter;

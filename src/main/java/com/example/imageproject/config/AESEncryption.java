@@ -1,27 +1,27 @@
-package com.example.imageproject.service;
+package com.example.imageproject.config;
 
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Configuration;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import javax.transaction.Transactional;
 import java.security.Key;
 import java.util.Base64;
 
+@Configuration
 public class AESEncryption {
 
     private static final String AES_ALGORITHM = "AES";
     private static final String AES_CIPHER_MODE = "AES/ECB/PKCS5Padding";
     private static final String SECRET_KEY = "1234567890123456";
 
-    public static byte[] encrypt(byte[] data) throws Exception {
+    public byte[] encrypt(byte[] data) throws Exception {
         Key key = new SecretKeySpec(SECRET_KEY.getBytes(), AES_ALGORITHM);
         Cipher cipher = Cipher.getInstance(AES_CIPHER_MODE);
         cipher.init(Cipher.ENCRYPT_MODE, key);
         return cipher.doFinal(data);
     }
 
-    public static byte[] decrypt(byte[] encryptedData) throws Exception {
+    public byte[] decrypt(byte[] encryptedData) throws Exception {
         Key key = new SecretKeySpec(SECRET_KEY.getBytes(), AES_ALGORITHM);
         Cipher cipher = Cipher.getInstance(AES_CIPHER_MODE);
         cipher.init(Cipher.DECRYPT_MODE, key);

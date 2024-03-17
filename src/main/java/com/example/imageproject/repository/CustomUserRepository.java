@@ -1,6 +1,7 @@
-package hu.progmasters.moovsmart.repository;
+package com.example.imageproject.repository;
 
-import hu.progmasters.moovsmart.domain.CustomUser;
+
+import com.example.imageproject.domain.CustomUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,10 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface CustomUserRepository extends JpaRepository<CustomUser, Long> {
 
     CustomUser findByEmail(String email);
-
     CustomUser findByActivation(String confirmationToken);
-
-
     CustomUser findByUsername(String username);
 
 }

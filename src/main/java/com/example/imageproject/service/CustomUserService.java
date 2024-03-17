@@ -1,14 +1,15 @@
+package com.example.imageproject.service;
 
 
-
-package hu.progmasters.moovsmart.service;
-
-import hu.progmasters.moovsmart.config.CustomUserRole;
-import hu.progmasters.moovsmart.domain.*;
-import hu.progmasters.moovsmart.dto.*;
-import hu.progmasters.moovsmart.exception.*;
-import hu.progmasters.moovsmart.repository.AgentCommentRepository;
-import hu.progmasters.moovsmart.repository.CustomUserRepository;
+import com.example.imageproject.config.CustomUserRole;
+import com.example.imageproject.domain.ConfirmationToken;
+import com.example.imageproject.domain.CustomUser;
+import com.example.imageproject.domain.CustomUserEmail;
+import com.example.imageproject.dto.CustomUserForm;
+import com.example.imageproject.dto.CustomUserFormAdmin;
+import com.example.imageproject.dto.CustomUserInfo;
+import com.example.imageproject.exception.*;
+import com.example.imageproject.repository.CustomUserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,10 +20,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
+
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,34 +41,18 @@ public class CustomUserService implements UserDetailsService {
     private ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private ConfirmationTokenService confirmationTokenService;
-    private EstateAgentService estateAgentService;
-    private AgentCommentRepository agentCommentRepository;
-
     private SendingEmailService sendingEmailService;
-
-    private PropertyService propertyService;
-
     private CustomUserEmailService customUserEmailService;
 
     @Autowired
-    public CustomUserService(CustomUserRepository customUserRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder, ConfirmationTokenService confirmationTokenService, EstateAgentService estateAgentService, SendingEmailService sendingEmailService, CustomUserEmailService customUserEmailService, AgentCommentRepository agentCommentRepository) {
+    public CustomUserService(CustomUserRepository customUserRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder, ConfirmationTokenService confirmationTokenService, SendingEmailService sendingEmailService, CustomUserEmailService customUserEmailService) {
         this.customUserRepository = customUserRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
         this.confirmationTokenService = confirmationTokenService;
-        this.estateAgentService = estateAgentService;
-        this.agentCommentRepository = agentCommentRepository;
         this.sendingEmailService = sendingEmailService;
         this.customUserEmailService = customUserEmailService;
     }
-
-
-    @Autowired
-    public CustomUserService setPropertyService(PropertyService propertyService) {
-        this.propertyService = propertyService;
-        return this;
-    }
-
 
     public CustomUserInfo register(CustomUserForm customUserForm) {
         if (customUserRepository.findByEmail(customUserForm.getEmail()) != null) {
@@ -79,7 +64,6 @@ public class CustomUserService implements UserDetailsService {
             CustomUser customUser = buildCustomUserForRegistration(customUserForm, confirmationToken);
             confirmationToken.setCustomUser(customUser);
             CustomUser savedUser = customUserRepository.save(customUser);
-            isAgent(customUserForm, customUser);
             addToEmailList(customUserForm, customUser);
             CustomUserInfo customUserInfo = modelMapper.map(savedUser, CustomUserInfo.class);
             customUserInfo.setCustomUserRoles(customUser.getRoles());
@@ -102,7 +86,6 @@ public class CustomUserService implements UserDetailsService {
                 .hasNewsletter(customUserForm.getHasNewsletter())
                 .activation(confirmationToken.getConfirmationToken())
                 .confirmationToken(confirmationToken)
-                .isAgent(customUserForm.getIsAgent())
                 .build();
     }
 
@@ -119,12 +102,6 @@ public class CustomUserService implements UserDetailsService {
     }
 
 
-    public void isAgent(CustomUserForm customUserForm, CustomUser customUser) {
-        if (Boolean.TRUE.equals(customUserForm.getIsAgent())) {
-            customUser.setRoles(List.of(CustomUserRole.ROLE_AGENT));
-            estateAgentService.save(customUser);
-        }
-    }
 
     public void sendingActivationEmail(String name, String email) {
         String subject = "Felhasználói fiók aktivalása";
@@ -158,7 +135,7 @@ public class CustomUserService implements UserDetailsService {
             }
         };
 
-        scheduledExecutorService.schedule(task, 60, TimeUnit.SECONDS);
+        scheduledExecutorService.schedule(task, 1800000, TimeUnit.SECONDS);
 
     }
 
@@ -176,10 +153,10 @@ public class CustomUserService implements UserDetailsService {
             CustomUser customUser = customUserRepository.findByActivation(confirmationToken);
             if ((LocalDateTime.now()).isBefore(customUser.getConfirmationToken().getExpiredDate())) {
                 customUser.setEnable(true);
-                return "Activation is successful!";
+                return "Activáció sikeres!";
             } else {
                 customUserRepository.delete(customUser);
-                return "The token is invalid or broken";
+                return "A token érvénytelen vagy rossz!";
             }
         } catch (TokenCannotBeUsedException e) {
             throw new TokenCannotBeUsedException(confirmationToken);
@@ -264,46 +241,6 @@ public class CustomUserService implements UserDetailsService {
     }
 
 
-    public String deleteSale(String username, Long pId) {
-        CustomUser customUser = findCustomUserByUsername(username);
-        List<Long> propertyIds = new ArrayList<>();
-        for (Property property : customUser.getPropertyList()) {
-            propertyIds.add(property.getId());
-        }
-            if (propertyIds.contains(pId)) {
-                Property property = propertyService.findPropertyById(pId);
-                property.setStatus(PropertyStatus.INACTIVE);
-                property.setDateOfSale(LocalDateTime.now());
-                if (customUser.getRoles().equals(List.of(CustomUserRole.ROLE_AGENT))) {
-                    Integer sellPoint = customUser.getEstateAgent().getSellPoint();
-                    customUser.getEstateAgent().setSellPoint(sellPoint + 1);
-                    if (sellPoint >= 50 && sellPoint < 150) {
-                        customUser.getEstateAgent().setRank(AgentRank.MEDIOR);
-                    } else if (sellPoint >= 150) {
-                        customUser.getEstateAgent().setRank(AgentRank.PROFESSIONAL);
-                    } else {
-                        customUser.getEstateAgent().setRank(AgentRank.RECRUIT);
-                    }
-                }
-                return "Congratulate! You sold your property!";
-            }
-        return "There is no property with that id.";
-    }
-
-
-    public String deleteProperty(String username, Long pId) {
-        CustomUser customUser = findCustomUserByUsername(username);
-        for (Property property : customUser.getPropertyList()) {
-            if (property.getId().equals(pId)) {
-                property.setStatus(PropertyStatus.INACTIVE);
-                property.setDateOfInactivation(LocalDateTime.now());
-                return "You deleted your property!";
-            }
-        }
-        return "There is no property with that id.";
-    }
-
-
     public CustomUserInfo update(String username, CustomUserForm customUserForm) {
         CustomUser customUser = findCustomUserByUsername(username);
         if (customUserRepository.findByUsername(customUserForm.getUsername()) != null &&
@@ -316,10 +253,6 @@ public class CustomUserService implements UserDetailsService {
             String emailOld = customUser.getEmail();
             String nameOld = customUser.getName();
             modelMapper.map(customUserForm, customUser);
-            isAgent(customUserForm, customUser);
-            if (Boolean.FALSE.equals(customUserForm.getIsAgent())) {
-                customUser.setRoles(List.of(CustomUserRole.ROLE_USER));
-            }
             addToEmailList(customUserForm, customUser);
             if (Boolean.FALSE.equals(customUserForm.getHasNewsletter())) {
                 CustomUserEmail customUserEmail = customUser.getCustomUserEmail();
@@ -345,51 +278,7 @@ public class CustomUserService implements UserDetailsService {
     }
 
 
-    public String makeInactive(String customUsername) {
-        CustomUser customUser = findCustomUserByUsername(customUsername);
-        deleteProperty(customUser.getUsername(), customUser.getCustomUserId());
-        CustomUserEmail customUserEmail = customUserEmailService.findCustomUserEmailByEmail(customUser.getEmail());
-        customUser.setCustomUserEmail(null);
-        customUserEmailService.delete(customUserEmail);
-        customUser.setHasNewsletter(false);
-        customUser.setUsername(null);
-        customUser.setName(null);
-        customUser.setEmail(null);
-        customUser.setPassword(null);
-        customUser.setPhoneNumber(null);
-        customUser.setRoles(null);
-        customUser.setEnable(false);
-        customUser.setActivation(null);
-        customUser.setConfirmationToken(null);
-        customUser.setDeleteDate(LocalDateTime.now());
-        customUser.setDeleted(true);
-        customUser.setCustomUserEmail(null);
-        return "You deleted your profile!";
-    }
 
-    public AgentCommentInfo comment(CommentForm comment) {
-        CustomUser agent = findCustomUserByUsername(comment.getAgentName());
-        CustomUser user = findCustomUserByUsername(comment.getUserName());
-        AgentComment agentComment = new AgentComment();
-        agentComment.setComment(comment.getComment());
-        agentComment.setCustomUsername(user.getUsername());
-        agentComment.setEstateAgent(agent.getEstateAgent());
-        agentCommentRepository.save(agentComment);
-        return modelMapper.map(agentComment, AgentCommentInfo.class);
-    }
-
-    public EstateAgentInfo getAgentInfo(String userName) {
-        CustomUser customUser = findCustomUserByUsername(userName);
-        EstateAgent agent = customUser.getEstateAgent();
-        List<AgentComment> comments = agent.getComments();
-        List<AgentCommentInfo> commentInfos = new ArrayList<>();
-        for (AgentComment comment : comments) {
-            commentInfos.add(modelMapper.map(comment, AgentCommentInfo.class));
-        }
-        EstateAgentInfo info = modelMapper.map(agent, EstateAgentInfo.class);
-        info.setCommentInfo(commentInfos);
-        return info;
-    }
 
 
     @Scheduled(cron = "0 0 6 * * ?")
@@ -397,8 +286,7 @@ public class CustomUserService implements UserDetailsService {
         for (CustomUserEmail customUserEmail : customUserEmailService.getCustomUserEmails()) {
             String subject = "Hírlevél az újdonságokról!";
             String text = "Kedves " + findCustomUserByEmail(customUserEmail.getEmail()).getName() +
-                    "! \n \n Ezennel küldjük a 24 óra alatt regisztrált új ingatlanokat!"
-                    + "\n \n" + propertyService.getProperties24().toString()
+                    "! \n \n Kérem, látogasson el az oldalunkra az újdonságokért!"
                     + "\n \n Ha le szeretne íratkozni, kérem kattintson a következő linkre: "
                     + "http://localhost:8080/api/customusers/unsubscribenewsletter/"
                     + customUserEmail.getCustomUser().getConfirmationToken().getConfirmationToken();
@@ -456,8 +344,30 @@ public class CustomUserService implements UserDetailsService {
     public String deleteUser(String customUsername) {
         CustomUser customUser = findCustomUserByUsername(customUsername);
         customUserRepository.delete(customUser);
-        return "Customer is deleted!";
+        return "A felhasználó törölve van!";
     }
+
+    public String makeInactive(String customUsername) {
+        CustomUser customUser = findCustomUserByUsername(customUsername);
+        CustomUserEmail customUserEmail = customUserEmailService.findCustomUserEmailByEmail(customUser.getEmail());
+        customUser.setCustomUserEmail(null);
+        customUserEmailService.delete(customUserEmail);
+        customUser.setHasNewsletter(false);
+        customUser.setUsername(null);
+        customUser.setName(null);
+        customUser.setEmail(null);
+        customUser.setPassword(null);
+        customUser.setPhoneNumber(null);
+        customUser.setRoles(null);
+        customUser.setEnable(false);
+        customUser.setActivation(null);
+        customUser.setConfirmationToken(null);
+        customUser.setDeleteDate(LocalDateTime.now());
+        customUser.setDeleted(true);
+        customUser.setCustomUserEmail(null);
+        return "Törölte a profilját!";
+    }
+
 }
 
 

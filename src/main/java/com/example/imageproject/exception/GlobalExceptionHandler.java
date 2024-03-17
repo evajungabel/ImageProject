@@ -1,13 +1,4 @@
-package hu.progmasters.moovsmart.exception;/*
- * Copyright © Progmasters (QTC Kft.), 2018.
- * All rights reserved. No part or the whole of this Teaching Material (TM) may be reproduced, copied, distributed,
- * publicly performed, disseminated to the public, adapted or transmitted in any form or by any means, including
- * photocopying, recording, or other electronic or mechanical methods, without the prior written permission of QTC Kft.
- * This TM may only be used for the purposes of teaching exclusively by QTC Kft. and studying exclusively by QTC Kft.’s
- * students and for no other purposes by any parties other than QTC Kft.
- * This TM shall be kept confidential and shall not be made public or made available or disclosed to any unauthorized person.
- * Any dispute or claim arising out of the breach of these provisions shall be governed by and construed in accordance with the laws of Hungary.
- */
+package com.example.imageproject.exception;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import lombok.extern.slf4j.Slf4j;
@@ -64,41 +55,6 @@ public class GlobalExceptionHandler {
 
     }
 
-    @ExceptionHandler(AddressNotFoundException.class)
-    public ResponseEntity<ApiError> handleAddressNotFoundException(AddressNotFoundException ex) {
-        log.error("Not found error: ", ex);
-
-        ApiError body = new ApiError("NOT_FOUND_ERROR", "Address not found error.", ex.getLocalizedMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(WeatherNotFoundException.class)
-    public ResponseEntity<ApiError> handleWeatherNotFoundException(WeatherNotFoundException ex) {
-        log.error("Not found error: ", ex);
-
-        ApiError body = new ApiError("NOT_FOUND_ERROR", "Weather not found error.", ex.getLocalizedMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(PropertyNotFoundException.class)
-    public ResponseEntity<ApiError> handlePropertyNotFoundException(PropertyNotFoundException ex) {
-        log.error("Not found error: ", ex);
-
-        ApiError body = new ApiError("NOT_FOUND_ERROR", "Property not found error.", ex.getLocalizedMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(PropertyDataNotFoundException.class)
-    public ResponseEntity<ApiError> handlePropertyDataNotFoundException(PropertyDataNotFoundException ex) {
-        log.error("Not found error: ", ex);
-
-        ApiError body = new ApiError("NOT_FOUND_ERROR", "Property data not found error.", ex.getLocalizedMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
 
 
     @ExceptionHandler(UsernameNotFoundException.class)
@@ -156,40 +112,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(PropertyImageURLNotFoundException.class)
-    public ResponseEntity<ApiError> handlePropertyImageURLNotFoundException(PropertyImageURLNotFoundException ex) {
-        log.error("Not found error: ", ex);
-
-        ApiError body = new ApiError("NOT_FOUND_ERROR", "PropertyImageURL not found error.", ex.getLocalizedMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(CustomUserImageURLNotFoundException.class)
-    public ResponseEntity<ApiError> handleCustomUserImageURLNotFoundException(CustomUserImageURLNotFoundException ex) {
-        log.error("Not found error: ", ex);
-
-        ApiError body = new ApiError("NOT_FOUND_ERROR", "CustomUserImageURL not found error.", ex.getLocalizedMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(ImageDeleteFailedException.class)
-    public ResponseEntity<ApiError> handleImageDeleteFailedException(ImageDeleteFailedException ex) {
-        log.error("Delete failed error: ", ex);
-
-        ApiError body = new ApiError("DELETE_FAILED_ERROR", "Deleting ImageURL failed error.", ex.getLocalizedMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ApiError> handleNoResourcesFoundException(NoResourceFoundException ex) {
-        log.error("Not found error: ", ex);
-
-        ApiError body = new ApiError("NOT_FOUND_ERROR", "No resource not found error.", ex.getLocalizedMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
 
     @ExceptionHandler(EmailAddressExistsException.class)
     public ResponseEntity<ApiError> handleEmailAddressExistsException(EmailAddressExistsException ex) {
@@ -227,6 +149,25 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ImageNotFoundException.class)
+    public ResponseEntity<ApiError> handleImageNotFoundException(ImageNotFoundException ex) {
+        log.error("Not found error: ", ex);
+
+        ApiError body = new ApiError("NOT_FOUND_ERROR", "Image not found error.", ex.getLocalizedMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(ImageNotBelongsToTheUserException.class)
+    public ResponseEntity<ApiError> imageNotBelongsToTheUser(ImageNotBelongsToTheUserException ex) {
+        log.error("Image not belongs to the user error: ", ex);
+
+        ApiError body = new ApiError("IMAGE_NOT_BELONGS_TO_THE_USER", "Image not belongs to the user error.", ex.getLocalizedMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(TokenCannotBeUsedException.class)
     public ResponseEntity<ApiError> handleTokenCannotBeUsedException(TokenCannotBeUsedException ex) {
         log.error("The link is invalid or broken error: ", ex);
@@ -245,32 +186,25 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ImageUploadFailedException.class)
-    public ResponseEntity<ApiError> handleImageUploadFailedException(ImageUploadFailedException ex) {
+    @ExceptionHandler(IOExceptionImpl.class)
+    public ResponseEntity<ApiError> IOExceptionImpl(IOExceptionImpl ex) {
         log.error("Image upload failed error: ", ex);
 
-        ApiError body = new ApiError("IMAGE_UPLOAD_FAILED_ERROR", "Image upload is failed.", ex.getLocalizedMessage());
+        ApiError body = new ApiError("IMAGE_UPLOAD_FAILED_ERROR", "The content type is null error.", ex.getLocalizedMessage());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(CustomUserPlayedTheGameException.class)
-    public ResponseEntity<ApiError> handleCustomUserPlayedTheGameException(CustomUserPlayedTheGameException ex) {
-        log.error("Customer played the game error: ", ex);
+    @ExceptionHandler(ContentTypeIsNull.class)
+    public ResponseEntity<ApiError> ContentTypeIsNull(ContentTypeIsNull ex) {
+        log.error("ContentType is null error: ", ex);
 
-        ApiError body = new ApiError("CUSTOMER_PLAYED_THE_GAME_ERROR", "Customer played the game error.", ex.getLocalizedMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(CustomUserHasNotRightNumberOfInputsForTheGameException.class)
-    public ResponseEntity<ApiError> handleCustomUserHasNotRightNumberOfInputsForTheGameException(CustomUserHasNotRightNumberOfInputsForTheGameException ex) {
-        log.error("Customer has more inputs for the game error: ", ex);
-
-        ApiError body = new ApiError("CUSTOMER_HAS_MORE_INPUTS_FOR_THE_GAME_ERROR", "Customer has more inputs for the game error.", ex.getLocalizedMessage());
+        ApiError body = new ApiError("THE_CONTENT_TYPE_IS_NULL", "The content type is null error.", ex.getLocalizedMessage());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
+
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ApiError> defaultErrorHandler(Throwable t) {

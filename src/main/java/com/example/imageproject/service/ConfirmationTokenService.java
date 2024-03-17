@@ -1,7 +1,7 @@
-package hu.progmasters.moovsmart.service;
+package com.example.imageproject.service;
 
-import hu.progmasters.moovsmart.domain.ConfirmationToken;
-import hu.progmasters.moovsmart.repository.ConfirmationTokenRepository;
+import com.example.imageproject.domain.ConfirmationToken;
+import com.example.imageproject.repository.ConfirmationTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

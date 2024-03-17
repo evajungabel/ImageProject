@@ -1,24 +1,25 @@
-package hu.progmasters.moovsmart.controller;
+package com.example.imageproject.controller;
 
-import hu.progmasters.moovsmart.dto.*;
-import hu.progmasters.moovsmart.service.CustomUserService;
-import hu.progmasters.moovsmart.service.SendingEmailService;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+
+import com.example.imageproject.dto.CustomUserForm;
+import com.example.imageproject.dto.CustomUserFormAdmin;
+import com.example.imageproject.dto.CustomUserInfo;
+import com.example.imageproject.dto.CustomUserLogInForm;
+import com.example.imageproject.service.CustomUserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -27,12 +28,10 @@ import java.util.List;
 public class CustomUserController {
 
     private CustomUserService customUserService;
-    private SendingEmailService sendingEmailService;
 
     @Autowired
-    public CustomUserController(CustomUserService customUserService, SendingEmailService sendingEmailService) {
+    public CustomUserController(CustomUserService customUserService) {
         this.customUserService = customUserService;
-        this.sendingEmailService = sendingEmailService;
     }
 
 
@@ -66,15 +65,6 @@ public class CustomUserController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/unsubscribenewsletter/{confirmationToken}")
-    @Operation(summary = "Unsubscribing from newsletter by customer")
-    @ApiResponse(responseCode = "200", description = "Customer unsubscribe from the newsletter")
-    public ResponseEntity<String> unsubscribe(@PathVariable("confirmationToken") String confirmationToken) {
-        log.info("Http request, GET /api/customusers/unsubscribenewsletter/{confirmationToken}, confirmationToken: " + confirmationToken);
-        String result = customUserService.userUnsubscribeNewsletter(confirmationToken);
-        log.info("GET successful unsubscribe from /api/customusers/unsubscribenewsletter/{confirmationToken}, confirmationToken: " + confirmationToken);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
 
     @GetMapping
     @Operation(summary = "Getting all customers by admin")
@@ -92,7 +82,7 @@ public class CustomUserController {
     @Operation(summary = "Getting a customer with username by themselves")
     @ApiResponse(responseCode = "200", description = "Get a customer with username by a themselves")
     @SecurityRequirement(name = "basicAuth")
-    @Secured({"ROLE_ADMIN", "ROLE_USER", "ROLE_AGENT"})
+    @Secured({"ROLE_ADMIN", "ROLE_USER"})
     public ResponseEntity<CustomUserInfo> getCustomUserDetails() {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info("Http request, GET /api/customusers/customuser, with username: " + userDetails.getUsername());
@@ -118,7 +108,7 @@ public class CustomUserController {
     @Operation(summary = "Updating customer by themselves")
     @ApiResponse(responseCode = "200", description = "Customer is updated by themselves.")
     @SecurityRequirement(name = "basicAuth")
-    @Secured({"ROLE_ADMIN", "ROLE_USER", "ROLE_AGENT"})
+    @Secured({"ROLE_ADMIN", "ROLE_USER"})
     public ResponseEntity<CustomUserInfo> update(@Valid @RequestBody CustomUserForm customUserForm) {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info("Http request, PUT /api/customusers, body: " + customUserForm +
@@ -150,7 +140,7 @@ public class CustomUserController {
     @Operation(summary = "Deleting customer by themselves")
     @ApiResponse(responseCode = "200", description = "Customer is deleted by themselves.")
     @SecurityRequirement(name = "basicAuth")
-    @Secured({"ROLE_ADMIN", "ROLE_USER", "ROLE_AGENT"})
+    @Secured({"ROLE_ADMIN", "ROLE_USER"})
     public ResponseEntity<String> deleteUser() {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info("Http request, DELETE /api/customusers with username: " + userDetails.getUsername());
@@ -173,65 +163,7 @@ public class CustomUserController {
 
 
 
-    @DeleteMapping("/sale/{propertyId}")
-    @Operation(summary = "Customer sales a property and it is deleted")
-    @ApiResponse(responseCode = "200", description = "Property is sold and deleted by costumer.")
-    @SecurityRequirement(name = "basicAuth")
-    @Secured({"ROLE_ADMIN", "ROLE_USER", "ROLE_AGENT"})
-    public ResponseEntity<String> deleteSale(@PathVariable("propertyId") Long pId) {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info("Http request, DELETE /api/customusers/sale/{propertyId} with username: " + userDetails.getUsername() + ", and {propertyId} with variable: " + pId);
-        String message = customUserService.deleteSale(userDetails.getUsername(), pId);
-        log.info("DELETE data from repository from /api/customusers/sale/{propertyId} with username: " + userDetails.getUsername() + ", and {propertyId} with variable: " + pId);
-        return new ResponseEntity<>(message, HttpStatus.OK);
-    }
 
-    @DeleteMapping("/sale/{username}/{propertyId}")
-    @Operation(summary = "Customer sales a property and it is deleted by admin")
-    @ApiResponse(responseCode = "200", description = "Property is sold and deleted by admin.")
-    @SecurityRequirement(name = "basicAuth")
-    @Secured({"ROLE_ADMIN"})
-    public ResponseEntity<String> deleteSale(@PathVariable("username") String username, @PathVariable("propertyId") Long pId) {
-        log.info("Http request, DELETE /api/customusers/sale/{username}/{propertyId} with username: " + username + ", and {propertyId} with variable: " + pId);
-        String message = customUserService.deleteSale(username, pId);
-        log.info("DELETE data from repository from /api/customusers/sale/{username}/{propertyId} with username: " + username + ", and {propertyId} with variable: " + pId);
-        return new ResponseEntity<>(message, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/delete/{propertyId}")
-    @Operation(summary = "Customer deletes a property")
-    @ApiResponse(responseCode = "200", description = "Property is deleted by costumer.")
-    @SecurityRequirement(name = "basicAuth")
-    @Secured({"ROLE_ADMIN", "ROLE_USER", "ROLE_AGENT"})
-    public ResponseEntity<String> delete(@PathVariable("propertyId") Long pId) {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info("Http request, DELETE /api/customusers/delete/{propertyId} with username: " + userDetails.getUsername() + ", and {propertyId} with variable: " + pId);
-        String message = customUserService.deleteProperty(userDetails.getUsername(), pId);
-        log.info("DELETE data from repository from /api/customusers/delete/{propertyId} with username: " + userDetails.getUsername() + ", and {propertyId} with variable: " + pId);
-        return new ResponseEntity<>(message, HttpStatus.OK);
-    }
-
-    @PostMapping("/comment")
-    @Operation(summary = "Commenting of estate agent by customer")
-    @ApiResponse(responseCode = "201", description = "Comment of estate agent is created by customer.")
-    @SecurityRequirement(name = "basicAuth")
-    @Secured({"ROLE_ADMIN", "ROLE_USER", "ROLE_AGENT"})
-    public ResponseEntity<Void> comment(@Valid @RequestBody CommentForm comment) {
-        log.info("Http request, POST /api/customusers/comment, body: " + comment.toString());
-        customUserService.comment(comment);
-        log.info("POST data from repository from /api/customusers/comment, body: " + comment);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    @GetMapping("/comment/{userName}")
-    @Operation(summary = "Getting list of comments by anybody")
-    @ApiResponse(responseCode = "200", description = "Comments are listed by anybody.")
-    public ResponseEntity<EstateAgentInfo> listComments(@PathVariable("userName") String userName) {
-        log.info("Http request, GET /api/customusers/comment/{userName} with username: " + userName);
-        EstateAgentInfo estateAgentInfo = customUserService.getAgentInfo(userName);
-        log.info("GET data from repository from /api/customusers/comment/{userName} with username: " + userName);
-        return new ResponseEntity<>(estateAgentInfo, HttpStatus.OK);
-    }
 
     @PostMapping("/register-admin")
     @Operation(summary = "Registering first admin")

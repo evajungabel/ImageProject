@@ -1,8 +1,8 @@
-package hu.progmasters.moovsmart.service;
+package com.example.imageproject.service;
 
-import hu.progmasters.moovsmart.domain.CustomUserEmail;
-import hu.progmasters.moovsmart.exception.CustomUserEmailNotFoundException;
-import hu.progmasters.moovsmart.repository.CustomUserEmailRepository;
+import com.example.imageproject.domain.CustomUserEmail;
+import com.example.imageproject.exception.CustomUserEmailNotFoundException;
+import com.example.imageproject.repository.CustomUserEmailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

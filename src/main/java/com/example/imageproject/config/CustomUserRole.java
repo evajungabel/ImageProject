@@ -1,12 +1,9 @@
-package com.example.imageproject.domain;
+package com.example.imageproject.config;
 
 public enum CustomUserRole {
 
-    ROLE_GUEST("GUEST"),
     ROLE_USER("USER"),
-    ROLE_ADMIN("ADMIN"),
-    ROLE_AGENT("AGENT");
-
+    ROLE_ADMIN("ADMIN");
     private final String role;
 
     CustomUserRole(String role) {

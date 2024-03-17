@@ -1,181 +1,173 @@
 package com.example.imageproject.service;
 
-//import com.cloudinary.Cloudinary;
-//import com.cloudinary.utils.ObjectUtils;
-//import hu.progmasters.moovsmart.domain.CustomUser;
-//import hu.progmasters.moovsmart.domain.CustomUserImageURL;
-//import hu.progmasters.moovsmart.domain.Property;
-//import hu.progmasters.moovsmart.domain.PropertyImageURL;
-//import hu.progmasters.moovsmart.exception.AuthenticationExceptionImpl;
-//import hu.progmasters.moovsmart.exception.ImageDeleteFailedException;
-//import hu.progmasters.moovsmart.exception.ImageUploadFailedException;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Service;
-//import org.springframework.transaction.annotation.Transactional;
-//import org.springframework.web.multipart.MultipartFile;
-//
-//import java.io.IOException;
-//import java.util.Map;
-//
-//@Service
-//@Transactional
-//public class CloudinaryImageService {
-//
-//    private Cloudinary cloudinary;
-//    private CustomUserService customUserService;
-//    private PropertyService propertyService;
-//    private PropertyImageURLService propertyImageURLService;
-//    private CustomUserImageURLService customUserImageURLService;
-//
-//    @Autowired
-//    public CloudinaryImageService(Cloudinary cloudinary, CustomUserService customUserService, PropertyService propertyService, PropertyImageURLService propertyImageURLService, CustomUserImageURLService customUserImageURLService) {
-//        this.cloudinary = cloudinary;
-//        this.customUserService = customUserService;
-//        this.propertyService = propertyService;
-//        this.propertyImageURLService = propertyImageURLService;
-//        this.customUserImageURLService = customUserImageURLService;
-//    }
-//
-//
-//    public Map<String, Object> upload(MultipartFile file, String username, Long propertyId) throws AuthenticationExceptionImpl {
-//        Property property = propertyService.findPropertyById(propertyId);
-//
-//        if (username.equals(property.getCustomUser().getUsername())) {
-//            PropertyImageURL propertyImageURL = createNewPropertyImageURL(property);
-//            try {
-//                Map<String, Object> params = createMapForUpload(propertyId, propertyImageURL);
-//                return cloudinary.uploader().upload(file.getBytes(), params);
-//            } catch (IOException e) {
-//                throw new ImageUploadFailedException(username, propertyId);
-//            }
-//        } else {
-//            throw new AuthenticationExceptionImpl(username);
-//        }
-//    }
-//
-//    public PropertyImageURL createNewPropertyImageURL(Property property) {
-//        PropertyImageURL propertyImageURL = new PropertyImageURL();
-//        propertyImageURL.setProperty(property);
-//        return propertyImageURLService.save(propertyImageURL);
-//    }
-//
-//    public Map<String, Object> createMapForUpload(Long propertyId, PropertyImageURL propertyImageURL) {
-//        return ObjectUtils.asMap(
-//                "public_id", "myProperty" + propertyId + "/my_property" + propertyImageURL.getPropertyImageUrlId(),
-//                "overwrite", true,
-//                "faces", true,
-//                "notification_url", "http://localhost:8080/api/cloudinary",
-//                "resource_type", "auto");
-//    }
-//
-//    public Map<String, Object> uploadProfile(MultipartFile file, String username) {
-//
-//        CustomUser customUser = customUserService.findCustomUserByUsername(username);
-//        CustomUserImageURL customUserImageURL = createNewCustomUserImageURL(customUser);
-//        try {
-//            Map<String, Object> params = createMapForUploadProfile(customUser.getCustomUserId(), customUserImageURL);
-//            return cloudinary.uploader().upload(file.getBytes(), params);
-//        } catch (IOException e) {
-//            throw new ImageUploadFailedException(username, customUser.getCustomUserId());
-//        }
-//
-//    }
-//
-//    public CustomUserImageURL createNewCustomUserImageURL(CustomUser customUser) {
-//        CustomUserImageURL customUserImageURL = new CustomUserImageURL();
-//        customUserImageURL.setCustomUser(customUser);
-//        return customUserImageURLService.save(customUserImageURL);
-//    }
-//
-//    public Map<String, Object> createMapForUploadProfile(Long customUserId, CustomUserImageURL customUserImageURL) {
-//        return ObjectUtils.asMap(
-//                "public_id", "myProfile" + customUserId + "/my_profile" + customUserImageURL.getCustomUserImageUrlId(),
-//                "overwrite", true,
-//                "faces", true,
-//                "notification_url", "http://localhost:8080/api/cloudinary",
-//                "resource_type", "auto");
-//    }
-//
-//    public void getURL(Map<String, Object> data) {
-//        String url = (String) data.get("url");
-//
-//        Long propertyImageURLId = Long.parseLong(url.split("my_property")[1].split("\\.")[0]);
-//
-//        PropertyImageURL propertyImageURL = propertyImageURLService.findPropertyImageURLById(propertyImageURLId);
-//        propertyImageURL.setPropertyImageURL(url);
-//        propertyImageURLService.save(propertyImageURL);
-//    }
-//
-//    public void getProfileURL(Map<String, Object> data) {
-//        String url = (String) data.get("url");
-//
-//        Long customUserImageURLId = Long.parseLong(url.split("my_profile")[1].split("\\.")[0]);
-//
-//        CustomUserImageURL customUserImageURL = customUserImageURLService.findCustomUserImageURLById(customUserImageURLId);
-//        customUserImageURL.setCustomUserImageURL(url);
-//        customUserImageURLService.save(customUserImageURL);
-//    }
-//
-//
-//    public Map<String, Object> uploadFromURL(String url, String username, Long propertyId) throws AuthenticationExceptionImpl {
-//        Property property = propertyService.findPropertyById(propertyId);
-//
-//        if (username.equals(property.getCustomUser().getUsername())) {
-//            PropertyImageURL propertyImageURL = createNewPropertyImageURL(property);
-//            try {
-//                Map<String, Object> params = createMapForUpload(propertyId, propertyImageURL);
-//                return cloudinary.uploader().upload(url, params);
-//            } catch (IOException e) {
-//                throw new ImageUploadFailedException(username, propertyId);
-//            }
-//        } else {
-//            throw new AuthenticationExceptionImpl(username);
-//        }
-//    }
-//
-//
-//    public Map<String, Object> uploadProfileFromURL(String url, String username) {
-//        CustomUser customUser = customUserService.findCustomUserByUsername(username);
-//
-//        CustomUserImageURL customUserImageURL = createNewCustomUserImageURL(customUser);
-//        try {
-//            Map<String, Object> params = createMapForUploadProfile(customUser.getCustomUserId(), customUserImageURL);
-//            return cloudinary.uploader().upload(url, params);
-//        } catch (IOException e) {
-//            throw new ImageUploadFailedException(username, customUser.getCustomUserId());
-//        }
-//    }
-//
-//
-//    public Map<String, Object> deleteImage(String username, Long propertyId, Long propertyImageURLId) throws AuthenticationExceptionImpl {
-//        Property property = propertyService.findPropertyById(propertyId);
-//        String deleteFilePublicId = "myProperty" + propertyId + "/my_property" + propertyImageURLId;
-//
-//        if (username.equals(property.getCustomUser().getUsername())) {
-//            try {
-//                propertyImageURLService.deleteById(propertyImageURLId);
-//                Map<String, Object> params = ObjectUtils.asMap(
-//                        "notification_url", "http://localhost:8080/api/cloudinary");
-//                return cloudinary.uploader().destroy(deleteFilePublicId, params);
-//            } catch (IOException e) {
-//                throw new ImageDeleteFailedException(username, propertyImageURLId);
-//            }
-//        } else {
-//            throw new AuthenticationExceptionImpl(username);
-//        }
-//    }
-//
-//    public Map<String, Object> deleteProfileImage(String username, Long customUserImageURLId) throws AuthenticationExceptionImpl {
-//        CustomUser customUser = customUserService.findCustomUserByUsername(username);
-//        String deleteFilePublicId = "myProfile" + customUser.getCustomUserId() + "/my_profile" + customUserImageURLId;
-//
-//        try {
-//            customUserImageURLService.deleteById(customUserImageURLId);
-//            Map<String, Object> params = ObjectUtils.asMap(
-//                    "notification_url", "http://localhost:8080/api/cloudinary");
-//            return cloudinary.uploader().destroy(deleteFilePublicId, params);
-//        } catch (IOException e) {
-//            throw new ImageDeleteFailedException(username, customUserImageURLId);
-//        }
-//    }
-//}
+import com.example.imageproject.config.AESEncryption;
+import com.example.imageproject.domain.CustomUser;
+import com.example.imageproject.domain.Image;
+import com.example.imageproject.dto.ImageInfo;
+import com.example.imageproject.exception.IOExceptionImpl;
+import com.example.imageproject.exception.ImageNotBelongsToTheUserException;
+import com.example.imageproject.exception.ImageNotFoundException;
+import com.example.imageproject.repository.ImageRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+@Service
+@Transactional
+public class ImageService {
+
+    private CustomUserService customUserService;
+    private ImageRepository imageRepository;
+    private AESEncryption aesEncryption;
+    private ImageMagickService imageMagickService;
+
+    private static final String UPLOAD_SUCCESS = "Image uploaded successfully.";
+    private static final String UPLOAD_EMPTY = "Please upload a file.";
+    private static final String CONTENT_TYPE_JPG = "image/jpeg";
+    private static final String CONTENT_TYPE_PNG = "image/png";
+    private static final String CONTENT_TYPE_ALLOWED = "Only JPG and PNG formats are allowed.";
+    private static final String IMAGE_DIMENSIONS = "Image dimensions exceed the limits (5000x5000), so it is converted to it.";
+
+
+    @Autowired
+    public ImageService(CustomUserService customUserService, ImageRepository imageRepository, AESEncryption aesEncryption, ImageMagickService imageMagickService) {
+        this.customUserService = customUserService;
+        this.imageRepository = imageRepository;
+        this.aesEncryption = aesEncryption;
+        this.imageMagickService = imageMagickService;
+    }
+
+
+    public String uploadOnePicture(MultipartFile file, String username) {
+        String message = "";
+        try {
+            String contentType = file.getContentType();
+            if (file.isEmpty() || contentType == null) {
+                message = UPLOAD_EMPTY;
+            } else if (!contentType.equals(CONTENT_TYPE_JPG) && !contentType.equals(CONTENT_TYPE_PNG)) {
+                message = CONTENT_TYPE_ALLOWED;
+            } else {
+                BufferedImage imageSize = ImageIO.read(file.getInputStream());
+                if (imageSize.getWidth() <= 5000 && imageSize.getHeight() <= 5000) {
+                    byte[] imageData = file.getBytes();
+                    saveAndEncryptImage(imageData, username);
+                    message = UPLOAD_SUCCESS;
+                } else {
+                    File convertedFile = File.createTempFile("converted", ".jpg");
+                    file.transferTo(convertedFile);
+                    imageMagickService.resizeImage(convertedFile.getAbsolutePath(), "output.jpg", 5000, 5000);
+                    message = IMAGE_DIMENSIONS;
+                }
+            }
+            return message;
+        } catch (Exception e) {
+            throw new IOExceptionImpl(username);
+        }
+    }
+
+
+    public String saveImagesFromDirectory(String directoryPath, String username) {
+        File directory = new File(directoryPath);
+        File[] files = directory.listFiles();
+
+        try {
+            String message = "Result:";
+
+            if (files != null) {
+                for (File file : files) {
+                    String contentType = Files.probeContentType(file.toPath());
+                    if (file.length() == 0 || contentType == null) {
+                        message += "\n" + UPLOAD_EMPTY;
+                    } else if (!contentType.equals(CONTENT_TYPE_JPG) && !contentType.equals(CONTENT_TYPE_PNG)) {
+                        message += "\n" + CONTENT_TYPE_ALLOWED;
+                    } else {
+                        BufferedImage imageSize = ImageIO.read(new FileInputStream(file));
+                        if (imageSize.getWidth() <= 5000 && imageSize.getHeight() <= 5000) {
+                            byte[] imageData = Files.readAllBytes(file.toPath());
+                            saveAndEncryptImage(imageData, username);
+                            message = message + "\n" + UPLOAD_SUCCESS;
+                        } else {
+                            imageMagickService.resizeImage(file.getPath(), "output.jpg", 5000, 5000);
+                            message = "\n" + IMAGE_DIMENSIONS;
+                        }
+                    }
+                }
+            }
+            return message;
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
+
+
+    public void saveAndEncryptImage(byte[] imageData, String username) {
+        try {
+            CustomUser customUser = customUserService.findCustomUserByUsername(username);
+            Image image = new Image();
+            image.setData(aesEncryption.encrypt(imageData));
+            image.setCustomUser(customUser);
+            imageRepository.save(image);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ImageInfo getImageById(Long imageId, String username) {
+        CustomUser customUser = customUserService.findCustomUserByUsername(username);
+        try {
+            Image image = findImageByIdInRepository(imageId);
+            ImageInfo imageInfo = new ImageInfo();
+            if (customUser.getImages().contains(image)) {
+                imageInfo.setData(aesEncryption.decrypt(image.getData()));
+                return imageInfo;
+            } else {
+                throw new ImageNotBelongsToTheUserException(username);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Image findImageByIdInRepository(Long imageId) {
+        Optional<Image> imageOptional = imageRepository.findById(imageId);
+        if (imageOptional.isEmpty()) {
+            throw new ImageNotFoundException(imageId);
+        }
+        return imageOptional.get();
+    }
+
+
+    public byte[] getImages(String username) {
+        CustomUser customUser = customUserService.findCustomUserByUsername(username);
+        try {
+            ImageInfo imageInfo = new ImageInfo();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
+
+            for (int i = 0; i < customUser.getImages().size(); i++) {
+                Image image = customUser.getImages().get(i);
+                imageInfo.setData(aesEncryption.decrypt(image.getData()));
+                zipOutputStream.putNextEntry(new ZipEntry(image.getId() + ".jpg"));
+                zipOutputStream.write(imageInfo.getData());
+                zipOutputStream.closeEntry();
+            }
+            zipOutputStream.close();
+            byte[] zipData = outputStream.toByteArray();
+            return zipData;
+        } catch (Exception e) {
+            throw new IOExceptionImpl(username);
+        }
+    }
+
+}

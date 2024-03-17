@@ -1,6 +1,7 @@
-package hu.progmasters.moovsmart.service;
+package com.example.imageproject.service;
 
-import hu.progmasters.moovsmart.exception.SendingEmailException;
+
+import com.example.imageproject.exception.SendingEmailException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

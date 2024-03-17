@@ -1,17 +1,21 @@
-package hu.progmasters.moovsmart.domain;
+package com.example.imageproject.domain;
 
-import hu.progmasters.moovsmart.config.CustomUserRole;
-import lombok.*;
+import com.example.imageproject.config.CustomUserRole;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cascade;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -55,9 +59,6 @@ public class CustomUser implements UserDetails {
     @Column(name = "activation")
     private String activation;
 
-    @Column(name = "is_agent")
-    private boolean isAgent;
-
     @Column(name = "has_newsletter")
     private boolean hasNewsletter;
 
@@ -67,25 +68,15 @@ public class CustomUser implements UserDetails {
     @JoinTable(name = "custom_user_role")
     private List<CustomUserRole> roles;
 
-    @OneToMany(mappedBy = "customUser", cascade = CascadeType.ALL)
-    private List<Property> propertyList;
-
     @OneToOne(mappedBy = "customUser", cascade = CascadeType.ALL)
     private ConfirmationToken confirmationToken;
-
-    @OneToOne(mappedBy = "customUser", cascade = CascadeType.ALL, orphanRemoval = true)
-    private EstateAgent estateAgent;
-
-    @OneToMany(mappedBy = "customUser", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CustomUserImageURL> customUserImageURLs;
 
 
     @OneToOne(mappedBy = "customUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private CustomUserEmail customUserEmail;
 
     @OneToMany(mappedBy = "customUser", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CustomUserGame> customUserGames;
-
+    private List<Image> images;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

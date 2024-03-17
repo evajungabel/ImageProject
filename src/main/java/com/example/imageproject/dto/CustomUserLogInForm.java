@@ -1,4 +1,4 @@
-package hu.progmasters.moovsmart.dto;
+package com.example.imageproject.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

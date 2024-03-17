@@ -1,4 +1,4 @@
-package hu.progmasters.moovsmart.domain;
+package com.example.imageproject.domain;
 
 import lombok.*;
 

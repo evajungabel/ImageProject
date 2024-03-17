@@ -1,4 +1,4 @@
-package hu.progmasters.moovsmart.exception;
+package com.example.imageproject.exception;
 
 public class UsernameAndEmailAddressNotFoundException extends RuntimeException{
 

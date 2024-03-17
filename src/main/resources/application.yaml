@@ -1,15 +1,31 @@
 spring:
-    application
+    application:
         name: ImageProject
     datasource:
-        url: jdbc:mysql://localhost:3376/moovsmartTest?createDatabaseIfNotExist=true&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
-        username: root
-        password: test1234
+        url: jdbc:postgresql://localhost:3343/pictures?createDatabaseIfNotExist=true&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
+        username: postgres
+        password: image1234
     jpa:
         hibernate:
             ddl-auto: update
         properties:
             hibernate:
-                dialect: org.hibernate.dialect.MySQL8Dialect
+                dialect: org.hibernate.dialect.PostgreSQLDialect
         show-sql: on
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: application.demo7@gmail.com
+        password: lrnvustumoozhmpr
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+                        required: true
+    servlet:
+        multipart:
+            max-file-size: 100MB
+            max-request-size: 100MB
 

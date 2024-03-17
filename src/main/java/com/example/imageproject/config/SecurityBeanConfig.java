@@ -1,4 +1,4 @@
-package hu.progmasters.moovsmart.config;
+package com.example.imageproject.config;
 
 
 import org.springframework.context.annotation.Bean;
