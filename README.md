@@ -1,4 +1,4 @@
-# realestate
+# Image Upload
 A backend part of an image upload and download application.
 
 In addition to the basic functions, the functions were the following:
